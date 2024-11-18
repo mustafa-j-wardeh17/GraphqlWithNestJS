@@ -15,10 +15,10 @@ export class PetsResolver {
   }
 
 
-  
 
-  // @Mutation(() => Pet)
-  // removePet(@Args('id', { type: () => Int }) id: number) {
-  //   return this.petsService.remove(id);
-  // }
+  @Mutation(() => Pet)
+  createPet(@Args('createPetInput') createPetInput: CreatePetInput): Promise<Pet> {
+    return this.petsService.createPet(createPetInput)
+  }
+
 }

@@ -14,7 +14,7 @@ export class PetsService {
 
   async createPet(createPetInput: CreatePetInput): Promise<Pet> {
     const newPet = this.PetRpository.create(createPetInput)
-    return this.PetRpository.save(newPet)
+    return await this.PetRpository.save(newPet)
   }
 
   async findAll(): Promise<Pet[]> {

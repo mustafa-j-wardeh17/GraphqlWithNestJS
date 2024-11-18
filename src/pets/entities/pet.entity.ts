@@ -1,5 +1,6 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Owner } from 'src/owners/entities/owner.entity';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity() // To make the entity inside pg db
 @ObjectType() // to contact with graphql resolvers will
@@ -15,4 +16,8 @@ export class Pet {
   @Column({ nullable: true })
   @Field({ nullable: true }) // you still have to make this graphql nullable to make property optional
   type?: string;
+
+  @ManyToOne(type => Owner, owner => owner.pets)
+  @Field(type => Owner)
+  owner: Owner
 }

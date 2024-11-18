@@ -6,16 +6,16 @@ import { UpdatePetInput } from './dto/update-pet.input';
 
 @Resolver(() => Pet)
 export class PetsResolver {
-  constructor(private readonly petsService: PetsService) {}
+  constructor(private readonly petsService: PetsService) { }
 
 
   @Query(() => [Pet])
-  pets():Promise<Pet[]> {
+  pets(): Promise<Pet[]> {
     return this.petsService.findAll();
   }
 
 
-
+  
 
   // @Mutation(() => Pet)
   // removePet(@Args('id', { type: () => Int }) id: number) {

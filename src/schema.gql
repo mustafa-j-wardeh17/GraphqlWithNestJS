@@ -3,8 +3,9 @@
 # ------------------------------------------------------
 
 type Pet {
-  """Example field (placeholder)"""
-  exampleField: Int!
+  id: Int!
+  name: String!
+  type: String
 }
 
 type Query {

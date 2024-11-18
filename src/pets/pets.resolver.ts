@@ -14,7 +14,10 @@ export class PetsResolver {
     return this.petsService.findAll();
   }
 
-
+  @Query(() => Pet)
+  getPet(@Args('id', { type: () => Int }) id: number): Promise<Pet> {
+    return this.petsService.findOne(id)
+  }
 
   @Mutation(() => Pet)
   createPet(@Args('createPetInput') createPetInput: CreatePetInput): Promise<Pet> {

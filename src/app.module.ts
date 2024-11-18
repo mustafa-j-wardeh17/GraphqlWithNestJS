@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, ValidationPipe } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { GraphQLModule } from '@nestjs/graphql';
@@ -7,6 +7,7 @@ import { join } from 'path';
 import { PetsModule } from './pets/pets.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OwnersModule } from './owners/owners.module';
+import { APP_PIPE } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -29,6 +30,9 @@ import { OwnersModule } from './owners/owners.module';
     OwnersModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, {
+    provide: APP_PIPE,
+    useClass: ValidationPipe
+  }],
 })
 export class AppModule { }

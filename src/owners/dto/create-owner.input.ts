@@ -1,5 +1,6 @@
 import { InputType, Int, Field } from '@nestjs/graphql';
 import { Pet } from 'src/pets/entities/pet.entity';
+import { PetInput } from './pet.input';
 
 @InputType()
 export class CreateOwnerInput {
@@ -9,6 +10,8 @@ export class CreateOwnerInput {
   @Field(type => Int)
   ownerId: number;
 
-  @Field(type => [Pet], { nullable: true })
-  pets?: Pet[]
+  @Field(type => [PetInput], { nullable: true })
+  pets?: PetInput[]
 }
+
+

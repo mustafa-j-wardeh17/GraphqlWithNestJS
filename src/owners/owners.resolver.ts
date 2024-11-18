@@ -17,4 +17,11 @@ export class OwnersResolver {
   getOwner(@Args('id', { type: () => Int }) id): Promise<Owner> {
     return this.ownersService.findOne(id)
   }
+
+  @Mutation(() => Owner)
+  async createOwner(
+    @Args('createOwnerInput') createOwnerInput: CreateOwnerInput
+  ): Promise<Owner> {
+    return this.ownersService.create(createOwnerInput);
+  }
 }

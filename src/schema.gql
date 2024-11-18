@@ -2,18 +2,18 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Pet {
+  id: Int!
+  name: String!
+  type: String
+  owner: Owner
+}
+
 type Owner {
   id: Int!
   name: String!
   ownerId: Int!
   pets: [Pet!]
-}
-
-type Pet {
-  id: Int!
-  name: String!
-  type: String
-  owner: Owner!
 }
 
 type Query {
@@ -25,9 +25,21 @@ type Query {
 
 type Mutation {
   createPet(createPetInput: CreatePetInput!): Pet!
+  createOwner(createOwnerInput: CreateOwnerInput!): Owner!
 }
 
 input CreatePetInput {
+  name: String!
+  type: String
+}
+
+input CreateOwnerInput {
+  name: String!
+  ownerId: Int!
+  pets: [PetInput!]
+}
+
+input PetInput {
   name: String!
   type: String
 }

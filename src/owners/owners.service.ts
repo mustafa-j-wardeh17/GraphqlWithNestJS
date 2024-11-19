@@ -16,40 +16,6 @@ export class OwnersService {
     private readonly petRepository: Repository<Pet>
   ) { }
 
-
-  //----------------------------------------
-  //--------------Create Owner--------------
-  //----------------------------------------
-  async create(createOwnerInput: CreateOwnerInput): Promise<Owner> {
-    // Create the pets or link existing ones
-    const pets = createOwnerInput.pets && (
-      await Promise.all(
-        createOwnerInput.pets.map(petInput => this.preloadPet(petInput))
-      )
-    );
-
-    const createOwner = this.ownerRepository.create({
-      ...createOwnerInput,
-      pets
-    });
-
-    return await this.ownerRepository.save(createOwner);
-  }
-
-  async preloadPet(petInput: PetInput): Promise<Pet> {
-
-    const existingPet = await this.petRepository.findOne({ where: { name: petInput.name } });
-    if (existingPet) {
-      return existingPet;
-    }
-
-
-    // If the pet doesn't exist, create a new one
-    const newPet = this.petRepository.create(petInput);
-    return await this.petRepository.save(newPet);
-  }
-
-
   //----------------------------------------
   //---------------Get Owners---------------
   //----------------------------------------
@@ -72,16 +38,74 @@ export class OwnersService {
 
 
   //----------------------------------------
+  //--------------Create Owner--------------
+  //----------------------------------------
+  async create(createOwnerInput: CreateOwnerInput): Promise<Owner> {
+    // Create the pets or link existing ones
+    const pets = createOwnerInput.pets && (
+      await Promise.all(
+        createOwnerInput.pets.map(petInput => this.preloadPet(petInput))
+      )
+    );
+
+    const createOwner = this.ownerRepository.create({
+      ...createOwnerInput,
+      pets
+    });
+
+    return await this.ownerRepository.save(createOwner);
+  }
+
+  
+  async preloadPet(petInput: PetInput): Promise<Pet> {
+
+    const existingPet = await this.petRepository.findOne({ where: { name: petInput.name } });
+    if (existingPet) {
+      return this.petRepository.preload({
+        id: existingPet.id,
+        ...existingPet,
+        ...petInput, // for update fields with new input if needed
+      })
+    }
+
+
+    // if the pet doesn't exist, create a new one
+    const newPet = this.petRepository.create(petInput);
+    return await this.petRepository.save(newPet);
+  }
+
+  //----------------------------------------
   //-------------Update Owner---------------
   //----------------------------------------
-  update(updateOwnerInput: UpdateOwnerInput) {
-    return `This action updates a #${updateOwnerInput.id} owner`;
+  async update(updateOwnerInput: UpdateOwnerInput) {
+    try {
+      const findOwner = await this.ownerRepository.findOne({
+        where: { id: updateOwnerInput.id },
+        relations: ['pets']
+      })
+      if (findOwner) {
+        const pets = updateOwnerInput.pets && (
+          await Promise.all(
+            updateOwnerInput.pets.map(petInput => this.preloadPet(petInput))
+          )
+        );
+
+        const updateOwner = await this.ownerRepository.preload({
+          id: updateOwnerInput.id,
+          ...findOwner,
+          ...updateOwnerInput,
+          pets: pets,
+        });
+        return this.ownerRepository.save(updateOwner);
+      }
+      throw new NotFoundException(`Owner with id=${updateOwnerInput.id} doesn't exist`)
+
+    } catch (error) {
+      throw error.message
+    }
   }
 
 
-  //----------------------------------------
-  //-------------Delete Owner---------------
-  //----------------------------------------
   //----------------------------------------
   //-------------Delete Owner---------------
   //----------------------------------------

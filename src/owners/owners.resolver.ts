@@ -43,7 +43,7 @@ export class OwnersResolver {
   @Mutation(() => Owner)
   async updateOwner(
     @Args('updateOwnerInput') updateOwnerInput: UpdateOwnerInput
-  ): Promise<string> {
+  ): Promise<Owner> {
     return this.ownersService.update(updateOwnerInput);
   }
 

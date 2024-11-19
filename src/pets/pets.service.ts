@@ -78,10 +78,33 @@ export class PetsService {
   //-------------Update Pet-----------------
   //----------------------------------------
   async updatePet(updatePetInput: UpdatePetInput): Promise<Pet> {
-    const editPet = await this.PetRpository.preload({
-      ...updatePetInput
-    })
-    return this.PetRpository.save(editPet)
+    try {
+      let updatedPet: Pet;
+
+      const findPet = await this.PetRpository.findOne({
+        where: { id: updatePetInput.id },
+        relations:['owner']
+      });
+
+      if (!findPet) {
+        // Throw an error if the pet is not found
+        throw new Error(`Pet with id ${updatePetInput.id} not found`);
+      }
+
+      updatedPet = await this.PetRpository.preload({
+        id: updatePetInput.id,
+        ...findPet,
+        ...updatePetInput,
+      });
+
+      if (!updatedPet) {
+        throw new Error(`Pet with id ${updatePetInput.id} not found`);
+      }
+
+      return await this.PetRpository.save(updatedPet);
+    } catch (error) {
+      throw new Error(`Failed to update pet: ${error.message}`);
+    }
   }
 
 

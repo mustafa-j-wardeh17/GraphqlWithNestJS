@@ -20,8 +20,34 @@ export class PetsService {
   //-------------Create Pet-----------------
   //----------------------------------------
   async createPet(createPetInput: CreatePetInput): Promise<Pet> {
-    const newPet = this.PetRpository.create(createPetInput)
-    return await this.PetRpository.save(newPet)
+    let newPet: Pet;
+
+    // Check if the ownerId is provided and try to find the owner
+    if (createPetInput.owner && createPetInput.owner.ownerId) {
+      const findOwner = await this.ownerRepository.findOne({
+        where: { ownerId: createPetInput.owner.ownerId }
+      });
+
+      if (findOwner) {
+        // If owner is found, associate the owner with the new pet
+        newPet = this.PetRpository.create({
+          ...createPetInput,
+          owner: findOwner
+        });
+      } else {
+        // Handle the case where the owner is not found (optional based on your use case)
+        throw new Error(`Owner with ownerId ${createPetInput.owner.ownerId} not found`);
+      }
+    } else {
+      // If no ownerId is provided, create the pet without an owner
+      newPet = this.PetRpository.create({
+        name: createPetInput.name,
+        type: createPetInput.type,
+      });
+    }
+
+    // Save and return the new pet
+    return await this.PetRpository.save(newPet);
   }
 
 

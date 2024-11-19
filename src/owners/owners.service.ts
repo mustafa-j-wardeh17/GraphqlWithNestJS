@@ -89,7 +89,7 @@ export class OwnersService {
     try {
       const findOwner = await this.ownerRepository.findOne({
         where: { id },
-        relations: ['pets'], 
+        relations: ['pets'],
       });
 
       // Check if owner exists
@@ -119,7 +119,17 @@ export class OwnersService {
   //----------------------------------------
   async removeAll(): Promise<string> {
     try {
-      await this.ownerRepository.clear()
+      // All Onwers
+      const allOwners = await this.ownerRepository.find({ relations: ['pets'] })
+
+      const allPetIds = allOwners.flatMap(owner => owner.pets?.map(pet => pet.id) || []);
+      // Delete all connected pets if any
+      if (allPetIds.length > 0) {
+        await this.petRepository.delete(allPetIds);
+      }
+
+      // Clear all owners
+      await this.ownerRepository.delete(allOwners.map(owner => owner.id))
       return `All Owners Deleted Successfully`;
     } catch (error) {
       throw error.message

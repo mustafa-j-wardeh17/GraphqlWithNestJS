@@ -29,6 +29,9 @@ type Mutation {
   deletePet(id: Int!): String!
   deletePets: String!
   createOwner(createOwnerInput: CreateOwnerInput!): Owner!
+  updateOwner(updateOwnerInput: UpdateOwnerInput!): Owner!
+  deleteOwner(id: Int!): String!
+  deleteOwners: String!
 }
 
 input CreatePetInput {
@@ -58,4 +61,11 @@ input CreateOwnerInput {
 input PetInput {
   name: String!
   type: String
+}
+
+input UpdateOwnerInput {
+  name: String
+  ownerId: Int
+  pets: [PetInput!]
+  id: Int!
 }

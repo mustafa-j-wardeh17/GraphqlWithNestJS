@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateOwnerInput } from './dto/create-owner.input';
 import { UpdateOwnerInput } from './dto/update-owner.input';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -16,6 +16,10 @@ export class OwnersService {
     private readonly petRepository: Repository<Pet>
   ) { }
 
+
+  //----------------------------------------
+  //--------------Create Owner--------------
+  //----------------------------------------
   async create(createOwnerInput: CreateOwnerInput): Promise<Owner> {
     // Create the pets or link existing ones
     const pets = createOwnerInput.pets && (
@@ -46,13 +50,19 @@ export class OwnersService {
   }
 
 
-
+  //----------------------------------------
+  //---------------Get Owners---------------
+  //----------------------------------------
   findAll(): Promise<Owner[]> {
     return this.ownerRepository.find({
       relations: ['pets']
     })
   }
 
+
+  //----------------------------------------
+  //---------------Get Owner----------------
+  //----------------------------------------
   findOne(id: number): Promise<Owner> {
     return this.ownerRepository.findOne({
       where: { id },
@@ -60,11 +70,41 @@ export class OwnersService {
     })
   }
 
-  update(id: number, updateOwnerInput: UpdateOwnerInput) {
-    return `This action updates a #${id} owner`;
+
+  //----------------------------------------
+  //-------------Update Owner---------------
+  //----------------------------------------
+  update(updateOwnerInput: UpdateOwnerInput) {
+    return `This action updates a #${updateOwnerInput.id} owner`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} owner`;
+
+  //----------------------------------------
+  //-------------Delete Owner---------------
+  //----------------------------------------
+  async remove(id: number): Promise<string> {
+    try {
+      const findPet = await this.ownerRepository.findOne({ where: { id } })
+      if (findPet) {
+        const deletePet = await this.ownerRepository.delete(id)
+        return `Owner with id=${id} deleted successfully`
+      }
+      throw new NotFoundException(`Owner with id=${id} doesn't found`)
+    } catch (error) {
+      throw error.message
+    }
+  }
+
+
+  //----------------------------------------
+  //------------Delete Owners---------------
+  //----------------------------------------
+  async removeAll(): Promise<string> {
+    try {
+      await this.ownerRepository.clear()
+      return `All Owners Deleted Successfully`;
+    } catch (error) {
+      throw error.message
+    }
   }
 }

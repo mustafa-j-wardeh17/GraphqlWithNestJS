@@ -71,7 +71,7 @@ export class PetsService {
       }
       throw new NotFoundException(`Pet with id=${id} doesn't found`)
     } catch (error) {
-      throw `Oops: Something went wrong!!`
+      throw error.message
     }
   }
 
@@ -84,7 +84,7 @@ export class PetsService {
       const deleteAllPets = await this.PetRpository.clear()
       return `All Pets Deleted Successfully`
     } catch (error) {
-      throw `Oops: Something went wrong!!`
+      throw error.message
     }
   }
 }

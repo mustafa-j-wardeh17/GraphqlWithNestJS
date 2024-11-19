@@ -82,16 +82,34 @@ export class OwnersService {
   //----------------------------------------
   //-------------Delete Owner---------------
   //----------------------------------------
+  //----------------------------------------
+  //-------------Delete Owner---------------
+  //----------------------------------------
   async remove(id: number): Promise<string> {
     try {
-      const findPet = await this.ownerRepository.findOne({ where: { id } })
-      if (findPet) {
-        const deletePet = await this.ownerRepository.delete(id)
-        return `Owner with id=${id} deleted successfully`
+      const findOwner = await this.ownerRepository.findOne({
+        where: { id },
+        relations: ['pets'], 
+      });
+
+      // Check if owner exists
+      if (!findOwner) {
+        throw new NotFoundException(`Owner with id=${id} not found`);
       }
-      throw new NotFoundException(`Owner with id=${id} doesn't found`)
+
+      // Delete associated pets in a single query (if any)
+      if (findOwner.pets && findOwner.pets.length > 0) {
+        const petIds = findOwner.pets.map(pet => pet.id);
+        await this.petRepository.delete(petIds);
+      }
+
+      // Delete the owner
+      await this.ownerRepository.delete(id);
+
+      return `Owner with id=${id} deleted successfully`;
     } catch (error) {
-      throw error.message
+      // Handle errors gracefully
+      throw new Error(`Failed to delete owner with id=${id}: ${error.message || error}`);
     }
   }
 

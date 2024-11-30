@@ -7,8 +7,8 @@ import { Pet } from 'src/pets/entities/pet.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Owner,Pet]),
-],
+    TypeOrmModule.forFeature([Owner, Pet]),
+  ],
   providers: [OwnersResolver, OwnersService],
 })
-export class OwnersModule {}
+export class OwnersModule { }

@@ -1,99 +1,201 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# NestJS GraphQL Example Project
+Welcome to the NestJS GraphQL Example Project! This project demonstrates how to set up and use GraphQL with NestJS, including database integration using TypeORM, entity creation, and implementing resolvers for queries and mutations. It provides a structured, scalable foundation for building GraphQL APIs.
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+---
+### What is GraphQL?
+GraphQL is a query language and runtime for APIs that enables clients to request only the data they need. Unlike traditional REST APIs, which require multiple endpoints, GraphQL uses a single endpoint to handle all operations. Key features of GraphQL include:
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+- **Flexible Data Retrieval**: Clients can fetch multiple resources in a single request.
+- **Strongly Typed Schema**: A schema defines the structure and types of your API, offering robust type-checking and self-documentation.
+- **Real-Time Updates**: Supports subscriptions for real-time data updates.
 
-## Description
+---
+### Project Overview
+This project demonstrates:
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
-
+- Setting up NestJS with GraphQL using the Apollo Driver.
+- Using TypeORM for database interactions.
+- Creating and linking entities for GraphQL queries and mutations.
+- Defining resolvers for GraphQL operations.
+---
+### Installation
+1. Clone the repository:
 ```bash
-$ npm install
+git clone https://github.com/your-repo/nestjs-graphql-example.git
+cd nestjs-graphql-example
 ```
-
-## Compile and run the project
-
+2. Install dependencies:
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm install
 ```
-
-## Run tests
-
+3. Start the development server:
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm run start:dev
 ```
+4. Access the GraphQL playground at `http://localhost:3000/graphql`.
 
-## Deployment
+##
+### Connecting NestJS with GraphQL
+Here’s a minimal setup for integrating GraphQL with NestJS:
+```typescript
+import { Module } from '@nestjs/common';
+import { GraphQLModule } from '@nestjs/graphql';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { join } from 'path';
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g mau
-$ mau deploy
+@Module({
+  imports: [
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      autoSchemaFile: join(process.cwd(), 'src/schema.gql'), // Code-first approach
+    }),
+  ],
+})
+export class AppModule {}
 ```
+<br/>
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+**Explanation:**
+1. **GraphQLModule**: Configures GraphQL in the application.
+2. **ApolloDriver**: Provides Apollo Server integration.
+3. **autoSchemaFile**: Automatically generates a schema file from your code.
 
-## Resources
+##
 
-Check out a few resources that may come in handy when working with NestJS:
+### Database Integration
+To work with a database, entities are created using **TypeORM** and mapped to GraphQL types.
+Example Entity: `Owner`
+```typescript
+import { ObjectType, Field, Int } from '@nestjs/graphql';
+import { Pet } from 'src/pets/entities/pet.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+@Entity()
+@ObjectType()
+export class Owner {
+  @PrimaryGeneratedColumn()
+  @Field(() => Int)
+  id: number;
 
-## Support
+  @Column()
+  @Field()
+  name: string;
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+  @OneToMany(() => Pet, (pet) => pet.owner)
+  @Field(() => [Pet], { nullable: true })
+  pets?: Pet[];
+}
+```
+<br/>
 
-## Stay in touch
+**Key Points:**
+1. **@Entity**: Maps the class to a database table.
+2. **@ObjectType**: Marks the class as a GraphQL type.
+3. **@Field**: Maps class properties to GraphQL fields.
+##
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### Resolvers in GraphQL
+In GraphQL, resolvers replace controllers to handle queries and mutations.
 
-## License
+Example Resolver: `OwnersResolver`
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+```typescript
+import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import { OwnersService } from './owners.service';
+import { Owner } from './entities/owner.entity';
+import { CreateOwnerInput } from './dto/create-owner.input';
+
+@Resolver(() => Owner)
+export class OwnersResolver {
+  constructor(private readonly ownersService: OwnersService) {}
+
+  @Query(() => [Owner])
+  owners(): Promise<Owner[]> {
+    return this.ownersService.findAll();
+  }
+
+  @Query(() => Owner)
+  getOwner(@Args('id', { type: () => Int }) id: number): Promise<Owner> {
+    return this.ownersService.findOne(id);
+  }
+
+  @Mutation(() => Owner)
+  createOwner(@Args('createOwnerInput') createOwnerInput: CreateOwnerInput): Promise<Owner> {
+    return this.ownersService.create(createOwnerInput);
+  }
+}
+```
+<br/>
+
+**Key Points:**
+1. **@Resolver**: Marks the class as a GraphQL resolver.
+2. **@Query**: Defines a query operation.
+3. **@Mutation**: Defines a mutation operation.
+4. **@Args**: Specifies arguments for queries or mutations.
+##
+
+### Modules in NestJS
+Modules organize application features. The `OwnersModule` demonstrates how to link entities and services with resolvers:
+```typescript
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { OwnersService } from './owners.service';
+import { OwnersResolver } from './owners.resolver';
+import { Owner } from './entities/owner.entity';
+import { Pet } from 'src/pets/entities/pet.entity';
+
+@Module({
+  imports: [TypeOrmModule.forFeature([Owner, Pet])],
+  providers: [OwnersResolver, OwnersService],
+})
+export class OwnersModule {}
+```
+##
+
+### Service Layer
+Services implement the business logic. Example service for `Owner`:
+
+```typescript
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Owner } from './entities/owner.entity';
+import { Pet } from 'src/pets/entities/pet.entity';
+import { CreateOwnerInput } from './dto/create-owner.input';
+
+@Injectable()
+export class OwnersService {
+  constructor(
+    @InjectRepository(Owner)
+    private readonly ownerRepository: Repository<Owner>,
+    @InjectRepository(Pet)
+    private readonly petRepository: Repository<Pet>,
+  ) {}
+
+  findAll(): Promise<Owner[]> {
+    return this.ownerRepository.find({ relations: ['pets'] });
+  }
+
+  findOne(id: number): Promise<Owner> {
+    return this.ownerRepository.findOne({ where: { id }, relations: ['pets'] });
+  }
+
+  async create(createOwnerInput: CreateOwnerInput): Promise<Owner> {
+    const owner = this.ownerRepository.create(createOwnerInput);
+    return this.ownerRepository.save(owner);
+  }
+}
+```
+<br/>
+
+**Key Points:**
+1. **@InjectRepository**: Injects a TypeORM repository.
+2. **findAll()**: Fetches all owners with their pets.
+3. **create()**: Creates a new owner with pets.
+
+##
+
+### **Conclusion**
+This project highlights how to build scalable, type-safe GraphQL APIs with NestJS and TypeORM. With clear organization of modules, services, entities, and resolvers, it serves as an excellent starting point for your GraphQL applications.
+
+Feel free to contribute, and happy coding! 🚀
